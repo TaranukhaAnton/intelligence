@@ -1,0 +1,29 @@
+{
+  "intelligenceApp": {
+    "triangulationPoint": {
+      "home": {
+        "title": "Triangulation Points",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Створити новий Triangulation Point",
+        "createOrEditLabel": "Створити чи редагувати Triangulation Point",
+        "notFound": "No Triangulation Points found"
+      },
+      "created": "Новий Triangulation Point створений з ідентифікатором {{ param }}",
+      "updated": "Triangulation Point оновлений з ідентифікатором {{ param }}",
+      "deleted": "Triangulation Point видалений з ідентифікатором {{ param }}",
+      "delete": {
+        "question": "Ви впевнені, що хочете видалити Triangulation Point {{ id }}?"
+      },
+      "detail": {
+        "title": "Triangulation Point"
+      },
+      "id": "ID",
+      "description": "Description",
+      "longitude": "Longitude",
+      "latitude": "Latitude",
+      "date": "Date",
+      "triangulationReport": "Triangulation Report",
+      "frequency": "Frequency"
+    }
+  }
+}

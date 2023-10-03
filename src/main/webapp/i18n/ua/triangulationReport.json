@@ -1,0 +1,27 @@
+{
+  "intelligenceApp": {
+    "triangulationReport": {
+      "home": {
+        "title": "Triangulation Reports",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Створити новий Triangulation Report",
+        "createOrEditLabel": "Створити чи редагувати Triangulation Report",
+        "notFound": "No Triangulation Reports found"
+      },
+      "created": "Новий Triangulation Report створений з ідентифікатором {{ param }}",
+      "updated": "Triangulation Report оновлений з ідентифікатором {{ param }}",
+      "deleted": "Triangulation Report видалений з ідентифікатором {{ param }}",
+      "delete": {
+        "question": "Ви впевнені, що хочете видалити Triangulation Report {{ id }}?"
+      },
+      "detail": {
+        "title": "Triangulation Report"
+      },
+      "id": "ID",
+      "date": "Date",
+      "name": "Name",
+      "conclusion": "Conclusion",
+      "points": "Points"
+    }
+  }
+}

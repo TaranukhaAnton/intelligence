@@ -1,0 +1,31 @@
+{
+  "applications": ["intelligence"],
+  "changelogDate": "20231003130835",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "frequency",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "Frequency",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "triangulationPoint",
+      "otherEntityRelationshipName": "frequency",
+      "relationshipName": "triangulationPoint",
+      "relationshipType": "one-to-many"
+    }
+  ],
+  "service": "serviceImpl"
+}

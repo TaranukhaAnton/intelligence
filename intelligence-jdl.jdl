@@ -1,0 +1,50 @@
+application {
+    config {
+        baseName intelligence
+        applicationType monolith
+        packageName ua.gov.intelligence
+        authenticationType jwt
+        prodDatabaseType mysql
+        devDatabaseType h2Disk
+        clientFramework react
+        cacheProvider ehcache
+        nativeLanguage ua
+        serverPort 8085
+
+    }
+    entities *
+    paginate * with pagination
+}
+
+
+
+entity TriangulationPoint {
+    description String
+    longitude Double required min(0) max(360)
+    latitude Double required min(0) max(360)
+    date ZonedDateTime required
+}
+
+entity Frequency {
+    name String
+    description String
+}
+
+
+entity TriangulationReport {
+    date ZonedDateTime
+    name String
+    conclusion String
+}
+
+relationship OneToMany {
+
+    TriangulationReport{points} to TriangulationPoint,
+    Frequency to TriangulationPoint
+}
+
+
+service * with serviceImpl
+filter TriangulationPoint
+
+

@@ -1,0 +1,26 @@
+{
+  "intelligenceApp": {
+    "frequency": {
+      "home": {
+        "title": "Frequencies",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Створити новий Frequency",
+        "createOrEditLabel": "Створити чи редагувати Frequency",
+        "notFound": "No Frequencies found"
+      },
+      "created": "Новий Frequency створений з ідентифікатором {{ param }}",
+      "updated": "Frequency оновлений з ідентифікатором {{ param }}",
+      "deleted": "Frequency видалений з ідентифікатором {{ param }}",
+      "delete": {
+        "question": "Ви впевнені, що хочете видалити Frequency {{ id }}?"
+      },
+      "detail": {
+        "title": "Frequency"
+      },
+      "id": "ID",
+      "name": "Name",
+      "description": "Description",
+      "triangulationPoint": "Triangulation Point"
+    }
+  }
+}
