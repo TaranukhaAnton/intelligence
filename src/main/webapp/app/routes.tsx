@@ -13,6 +13,7 @@ import EntitiesRoutes from 'app/entities/routes';
 import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
+import MapContainer from './components/MapContainer/MapContainer';
 import { AUTHORITIES } from 'app/config/constants';
 
 const loading = <div>loading ...</div>;
@@ -34,6 +35,7 @@ const AppRoutes = () => {
         <Route index element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="logout" element={<Logout />} />
+        <Route path="map" element={<MapContainer />} />
         <Route path="account">
           <Route
             path="*"
