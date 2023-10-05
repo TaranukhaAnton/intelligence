@@ -76,14 +76,20 @@ export default function Map() {
   }, [filteredPoints]);
 
   function onChangeFrqHandler(e) {
-    const frqId = e.target.value;
+    var options = e.target.options;
+    var value = [];
+    for (var i = 0, l = options.length; i < l; i++) {
+      if (options[i].selected) {
+        value.push(options[i].value);
+      }
+    }
     // Set optionId heare
-    setFrequencyId(frqId);
+    setFrequencyId(value);
   }
 
   return (
     <div className="map-wrap">
-      <select name="frq-select" onChange={onChangeFrqHandler}>
+      <select name="frq-select[]" onChange={onChangeFrqHandler} multiple={true}>
         <option value="">Виберіть частоту</option>
         {frequenciesAll.map(frequency => {
           return (

@@ -32,7 +32,7 @@ export const getAllEntities = createAsyncThunk('triangulationPointAll/fetch_enti
   return axios.get<ITriangulationPoint[]>(requestUrl);
 });
 
-export const getFilteredPoints = createAsyncThunk('triangulationPointAll/fetch_entity_filtered_list', async (id: string | number) => {
+export const getFilteredPoints = createAsyncThunk('triangulationPointAll/fetch_entity_filtered_list', async (id: []) => {
   const requestUrl = `${apiUrlAll}?frequencyId.in=${id}`;
   return axios.get<ITriangulationPoint[]>(requestUrl);
 });
