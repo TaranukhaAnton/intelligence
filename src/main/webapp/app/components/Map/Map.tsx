@@ -36,10 +36,8 @@ export default function Map() {
     // Multiple markers
     const markersData = triangulationPoints?.map(item => {
       return {
-        // lng: item.longitude,
-        // lat: item.latitude,
-        lng: item.latitude,
-        lat: item.longitude,
+        lng: item.longitude,
+        lat: item.latitude,
       };
     });
 
