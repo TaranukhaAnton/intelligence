@@ -9,6 +9,7 @@ const initialState: EntityState<IFrequency> = {
   loading: false,
   errorMessage: null,
   entities: [],
+  allEntities: [],
   entity: defaultValue,
   updating: false,
   totalItems: 0,
@@ -16,11 +17,16 @@ const initialState: EntityState<IFrequency> = {
 };
 
 const apiUrl = 'api/frequencies';
+const apiUrlAll = 'api/frequencies-all';
 
 // Actions
 
 export const getEntities = createAsyncThunk('frequency/fetch_entity_list', async ({ page, size, sort }: IQueryParams) => {
   const requestUrl = `${apiUrl}${sort ? `?page=${page}&size=${size}&sort=${sort}&` : '?'}cacheBuster=${new Date().getTime()}`;
+  return axios.get<IFrequency[]>(requestUrl);
+});
+export const getAllEntities = createAsyncThunk('frequencyAll/fetch_entity_list', async () => {
+  const requestUrl = `${apiUrl}`;
   return axios.get<IFrequency[]>(requestUrl);
 });
 
@@ -89,6 +95,9 @@ export const FrequencySlice = createEntitySlice({
         state.updating = false;
         state.updateSuccess = true;
         state.entity = {};
+      })
+      .addCase(getAllEntities.fulfilled, (state, action) => {
+        state.allEntities = action.payload.data;
       })
       .addMatcher(isFulfilled(getEntities), (state, action) => {
         const { data, headers } = action.payload;
