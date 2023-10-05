@@ -7,7 +7,7 @@
   "fields": [
     {
       "fieldName": "name",
-      "fieldType": "String"
+      "fieldType": "Double"
     },
     {
       "fieldName": "description",
@@ -15,7 +15,7 @@
     }
   ],
   "fluentMethods": true,
-  "jpaMetamodelFiltering": false,
+  "jpaMetamodelFiltering": true,
   "name": "Frequency",
   "pagination": "pagination",
   "readOnly": false,

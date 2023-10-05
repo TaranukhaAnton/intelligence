@@ -165,6 +165,13 @@ public class TriangulationPointResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
+    @GetMapping("/triangulation-points-all")
+    public ResponseEntity<List<TriangulationPoint>> getAllTriangulationPointsNP(TriangulationPointCriteria criteria) {
+        log.debug("REST request to get TriangulationPoints by criteria: {}", criteria);
+        List<TriangulationPoint> p = triangulationPointQueryService.findByCriteria(criteria);
+        return ResponseEntity.ok().body(p);
+    }
+
     /**
      * {@code GET  /triangulation-points/count} : count all the triangulationPoints.
      *

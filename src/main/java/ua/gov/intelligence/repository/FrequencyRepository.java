@@ -9,4 +9,4 @@ import ua.gov.intelligence.domain.Frequency;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface FrequencyRepository extends JpaRepository<Frequency, Long> {}
+public interface FrequencyRepository extends JpaRepository<Frequency, Long>, JpaSpecificationExecutor<Frequency> {}

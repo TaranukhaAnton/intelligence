@@ -19,7 +19,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import ua.gov.intelligence.IntegrationTest;
 import ua.gov.intelligence.domain.Frequency;
+import ua.gov.intelligence.domain.TriangulationPoint;
 import ua.gov.intelligence.repository.FrequencyRepository;
+import ua.gov.intelligence.service.criteria.FrequencyCriteria;
 
 /**
  * Integration tests for the {@link FrequencyResource} REST controller.
@@ -29,8 +31,9 @@ import ua.gov.intelligence.repository.FrequencyRepository;
 @WithMockUser
 class FrequencyResourceIT {
 
-    private static final String DEFAULT_NAME = "AAAAAAAAAA";
-    private static final String UPDATED_NAME = "BBBBBBBBBB";
+    private static final Double DEFAULT_NAME = 1D;
+    private static final Double UPDATED_NAME = 2D;
+    private static final Double SMALLER_NAME = 1D - 1D;
 
     private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
     private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
@@ -126,7 +129,7 @@ class FrequencyResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(frequency.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.doubleValue())))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)));
     }
 
@@ -142,8 +145,244 @@ class FrequencyResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(frequency.getId().intValue()))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
+            .andExpect(jsonPath("$.name").value(DEFAULT_NAME.doubleValue()))
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION));
+    }
+
+    @Test
+    @Transactional
+    void getFrequenciesByIdFiltering() throws Exception {
+        // Initialize the database
+        frequencyRepository.saveAndFlush(frequency);
+
+        Long id = frequency.getId();
+
+        defaultFrequencyShouldBeFound("id.equals=" + id);
+        defaultFrequencyShouldNotBeFound("id.notEquals=" + id);
+
+        defaultFrequencyShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultFrequencyShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultFrequencyShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultFrequencyShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllFrequenciesByNameIsEqualToSomething() throws Exception {
+        // Initialize the database
+        frequencyRepository.saveAndFlush(frequency);
+
+        // Get all the frequencyList where name equals to DEFAULT_NAME
+        defaultFrequencyShouldBeFound("name.equals=" + DEFAULT_NAME);
+
+        // Get all the frequencyList where name equals to UPDATED_NAME
+        defaultFrequencyShouldNotBeFound("name.equals=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllFrequenciesByNameIsInShouldWork() throws Exception {
+        // Initialize the database
+        frequencyRepository.saveAndFlush(frequency);
+
+        // Get all the frequencyList where name in DEFAULT_NAME or UPDATED_NAME
+        defaultFrequencyShouldBeFound("name.in=" + DEFAULT_NAME + "," + UPDATED_NAME);
+
+        // Get all the frequencyList where name equals to UPDATED_NAME
+        defaultFrequencyShouldNotBeFound("name.in=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllFrequenciesByNameIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        frequencyRepository.saveAndFlush(frequency);
+
+        // Get all the frequencyList where name is not null
+        defaultFrequencyShouldBeFound("name.specified=true");
+
+        // Get all the frequencyList where name is null
+        defaultFrequencyShouldNotBeFound("name.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllFrequenciesByNameIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        frequencyRepository.saveAndFlush(frequency);
+
+        // Get all the frequencyList where name is greater than or equal to DEFAULT_NAME
+        defaultFrequencyShouldBeFound("name.greaterThanOrEqual=" + DEFAULT_NAME);
+
+        // Get all the frequencyList where name is greater than or equal to UPDATED_NAME
+        defaultFrequencyShouldNotBeFound("name.greaterThanOrEqual=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllFrequenciesByNameIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        frequencyRepository.saveAndFlush(frequency);
+
+        // Get all the frequencyList where name is less than or equal to DEFAULT_NAME
+        defaultFrequencyShouldBeFound("name.lessThanOrEqual=" + DEFAULT_NAME);
+
+        // Get all the frequencyList where name is less than or equal to SMALLER_NAME
+        defaultFrequencyShouldNotBeFound("name.lessThanOrEqual=" + SMALLER_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllFrequenciesByNameIsLessThanSomething() throws Exception {
+        // Initialize the database
+        frequencyRepository.saveAndFlush(frequency);
+
+        // Get all the frequencyList where name is less than DEFAULT_NAME
+        defaultFrequencyShouldNotBeFound("name.lessThan=" + DEFAULT_NAME);
+
+        // Get all the frequencyList where name is less than UPDATED_NAME
+        defaultFrequencyShouldBeFound("name.lessThan=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllFrequenciesByNameIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        frequencyRepository.saveAndFlush(frequency);
+
+        // Get all the frequencyList where name is greater than DEFAULT_NAME
+        defaultFrequencyShouldNotBeFound("name.greaterThan=" + DEFAULT_NAME);
+
+        // Get all the frequencyList where name is greater than SMALLER_NAME
+        defaultFrequencyShouldBeFound("name.greaterThan=" + SMALLER_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllFrequenciesByDescriptionIsEqualToSomething() throws Exception {
+        // Initialize the database
+        frequencyRepository.saveAndFlush(frequency);
+
+        // Get all the frequencyList where description equals to DEFAULT_DESCRIPTION
+        defaultFrequencyShouldBeFound("description.equals=" + DEFAULT_DESCRIPTION);
+
+        // Get all the frequencyList where description equals to UPDATED_DESCRIPTION
+        defaultFrequencyShouldNotBeFound("description.equals=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    void getAllFrequenciesByDescriptionIsInShouldWork() throws Exception {
+        // Initialize the database
+        frequencyRepository.saveAndFlush(frequency);
+
+        // Get all the frequencyList where description in DEFAULT_DESCRIPTION or UPDATED_DESCRIPTION
+        defaultFrequencyShouldBeFound("description.in=" + DEFAULT_DESCRIPTION + "," + UPDATED_DESCRIPTION);
+
+        // Get all the frequencyList where description equals to UPDATED_DESCRIPTION
+        defaultFrequencyShouldNotBeFound("description.in=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    void getAllFrequenciesByDescriptionIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        frequencyRepository.saveAndFlush(frequency);
+
+        // Get all the frequencyList where description is not null
+        defaultFrequencyShouldBeFound("description.specified=true");
+
+        // Get all the frequencyList where description is null
+        defaultFrequencyShouldNotBeFound("description.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllFrequenciesByDescriptionContainsSomething() throws Exception {
+        // Initialize the database
+        frequencyRepository.saveAndFlush(frequency);
+
+        // Get all the frequencyList where description contains DEFAULT_DESCRIPTION
+        defaultFrequencyShouldBeFound("description.contains=" + DEFAULT_DESCRIPTION);
+
+        // Get all the frequencyList where description contains UPDATED_DESCRIPTION
+        defaultFrequencyShouldNotBeFound("description.contains=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    void getAllFrequenciesByDescriptionNotContainsSomething() throws Exception {
+        // Initialize the database
+        frequencyRepository.saveAndFlush(frequency);
+
+        // Get all the frequencyList where description does not contain DEFAULT_DESCRIPTION
+        defaultFrequencyShouldNotBeFound("description.doesNotContain=" + DEFAULT_DESCRIPTION);
+
+        // Get all the frequencyList where description does not contain UPDATED_DESCRIPTION
+        defaultFrequencyShouldBeFound("description.doesNotContain=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    void getAllFrequenciesByTriangulationPointIsEqualToSomething() throws Exception {
+        TriangulationPoint triangulationPoint;
+        if (TestUtil.findAll(em, TriangulationPoint.class).isEmpty()) {
+            frequencyRepository.saveAndFlush(frequency);
+            triangulationPoint = TriangulationPointResourceIT.createEntity(em);
+        } else {
+            triangulationPoint = TestUtil.findAll(em, TriangulationPoint.class).get(0);
+        }
+        em.persist(triangulationPoint);
+        em.flush();
+        frequency.addTriangulationPoint(triangulationPoint);
+        frequencyRepository.saveAndFlush(frequency);
+        Long triangulationPointId = triangulationPoint.getId();
+
+        // Get all the frequencyList where triangulationPoint equals to triangulationPointId
+        defaultFrequencyShouldBeFound("triangulationPointId.equals=" + triangulationPointId);
+
+        // Get all the frequencyList where triangulationPoint equals to (triangulationPointId + 1)
+        defaultFrequencyShouldNotBeFound("triangulationPointId.equals=" + (triangulationPointId + 1));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is returned.
+     */
+    private void defaultFrequencyShouldBeFound(String filter) throws Exception {
+        restFrequencyMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(frequency.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.doubleValue())))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)));
+
+        // Check, that the count call also returns 1
+        restFrequencyMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("1"));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is not returned.
+     */
+    private void defaultFrequencyShouldNotBeFound(String filter) throws Exception {
+        restFrequencyMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$").isEmpty());
+
+        // Check, that the count call also returns 0
+        restFrequencyMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("0"));
     }
 
     @Test

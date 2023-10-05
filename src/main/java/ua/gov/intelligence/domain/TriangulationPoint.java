@@ -1,10 +1,14 @@
 package ua.gov.intelligence.domain;
 
+import static javax.persistence.CascadeType.ALL;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import javax.persistence.*;
-import javax.validation.constraints.*;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -47,7 +51,7 @@ public class TriangulationPoint implements Serializable {
     @JsonIgnoreProperties(value = { "points" }, allowSetters = true)
     private TriangulationReport triangulationReport;
 
-    @ManyToOne
+    @ManyToOne(cascade = ALL)
     @JsonIgnoreProperties(value = { "triangulationPoints" }, allowSetters = true)
     private Frequency frequency;
 

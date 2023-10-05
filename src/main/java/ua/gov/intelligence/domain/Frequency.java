@@ -25,15 +25,21 @@ public class Frequency implements Serializable {
     private Long id;
 
     @Column(name = "name")
-    private String name;
+    private Double name;
 
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "frequency")
+    @OneToMany(mappedBy = "frequency", cascade = CascadeType.ALL)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "triangulationReport", "frequency" }, allowSetters = true)
     private Set<TriangulationPoint> triangulationPoints = new HashSet<>();
+
+    public Frequency(Double name) {
+        this.name = name;
+    }
+
+    public Frequency() {}
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -50,16 +56,16 @@ public class Frequency implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
+    public Double getName() {
         return this.name;
     }
 
-    public Frequency name(String name) {
+    public Frequency name(Double name) {
         this.setName(name);
         return this;
     }
 
-    public void setName(String name) {
+    public void setName(Double name) {
         this.name = name;
     }
 
@@ -131,7 +137,7 @@ public class Frequency implements Serializable {
     public String toString() {
         return "Frequency{" +
             "id=" + getId() +
-            ", name='" + getName() + "'" +
+            ", name=" + getName() +
             ", description='" + getDescription() + "'" +
             "}";
     }

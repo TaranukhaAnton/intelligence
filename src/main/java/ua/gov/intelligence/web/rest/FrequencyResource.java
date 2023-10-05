@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -20,7 +19,9 @@ import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import ua.gov.intelligence.domain.Frequency;
 import ua.gov.intelligence.repository.FrequencyRepository;
+import ua.gov.intelligence.service.FrequencyQueryService;
 import ua.gov.intelligence.service.FrequencyService;
+import ua.gov.intelligence.service.criteria.FrequencyCriteria;
 import ua.gov.intelligence.web.rest.errors.BadRequestAlertException;
 
 /**
@@ -41,9 +42,16 @@ public class FrequencyResource {
 
     private final FrequencyRepository frequencyRepository;
 
-    public FrequencyResource(FrequencyService frequencyService, FrequencyRepository frequencyRepository) {
+    private final FrequencyQueryService frequencyQueryService;
+
+    public FrequencyResource(
+        FrequencyService frequencyService,
+        FrequencyRepository frequencyRepository,
+        FrequencyQueryService frequencyQueryService
+    ) {
         this.frequencyService = frequencyService;
         this.frequencyRepository = frequencyRepository;
+        this.frequencyQueryService = frequencyQueryService;
     }
 
     /**
@@ -140,14 +148,30 @@ public class FrequencyResource {
      * {@code GET  /frequencies} : get all the frequencies.
      *
      * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of frequencies in body.
      */
     @GetMapping("/frequencies")
-    public ResponseEntity<List<Frequency>> getAllFrequencies(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
-        log.debug("REST request to get a page of Frequencies");
-        Page<Frequency> page = frequencyService.findAll(pageable);
+    public ResponseEntity<List<Frequency>> getAllFrequencies(
+        FrequencyCriteria criteria,
+        @org.springdoc.api.annotations.ParameterObject Pageable pageable
+    ) {
+        log.debug("REST request to get Frequencies by criteria: {}", criteria);
+        Page<Frequency> page = frequencyQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /frequencies/count} : count all the frequencies.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/frequencies/count")
+    public ResponseEntity<Long> countFrequencies(FrequencyCriteria criteria) {
+        log.debug("REST request to count Frequencies by criteria: {}", criteria);
+        return ResponseEntity.ok().body(frequencyQueryService.countByCriteria(criteria));
     }
 
     /**
