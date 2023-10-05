@@ -13,8 +13,9 @@ export default function Map() {
 
   const mapContainer = useRef(null);
   const map = useRef(null);
-  const zaporizhzhia = { lng: 35.1396, lat: 47.8388 };
-  const [zoom] = useState(9);
+  const zaporizhzhia = { lng: 35.53243155971364, lat: 47.43104300460715 };
+
+  const [zoom] = useState(10.5);
   maptilersdk.config.apiKey = 'QJjHhm7ZqSSIlQdz165Q';
 
   useEffect(() => {
@@ -36,10 +37,8 @@ export default function Map() {
     // Multiple markers
     const markersData = triangulationPoints?.map(item => {
       return {
-        // lng: item.longitude,
-        // lat: item.latitude,
-        lng: item.latitude,
-        lat: item.longitude,
+        lng: item.longitude,
+        lat: item.latitude,
       };
     });
 
