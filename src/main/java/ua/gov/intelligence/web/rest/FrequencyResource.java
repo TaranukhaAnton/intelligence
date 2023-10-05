@@ -162,6 +162,17 @@ public class FrequencyResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
+    @GetMapping("/frequencies-all")
+    public ResponseEntity<List<Frequency>> getAllFrequenciesNP(
+        FrequencyCriteria criteria,
+        @org.springdoc.api.annotations.ParameterObject Pageable pageable
+    ) {
+        log.debug("REST request to get Frequencies by criteria: {}", criteria);
+        final List<Frequency> byCriteria = frequencyQueryService.findByCriteria(criteria);
+
+        return ResponseEntity.ok().body(byCriteria);
+    }
+
     /**
      * {@code GET  /frequencies/count} : count all the frequencies.
      *
