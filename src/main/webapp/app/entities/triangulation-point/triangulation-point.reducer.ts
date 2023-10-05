@@ -2,7 +2,7 @@ import axios from 'axios';
 import { createAsyncThunk, isFulfilled, isPending, isRejected } from '@reduxjs/toolkit';
 
 import { cleanEntity } from 'app/shared/util/entity-utils';
-import { IQueryParams, createEntitySlice, EntityState, serializeAxiosError } from 'app/shared/reducers/reducer.utils';
+import { IQueryParams, IFilterParams, createEntitySlice, EntityState, serializeAxiosError } from 'app/shared/reducers/reducer.utils';
 import { ITriangulationPoint, defaultValue } from 'app/shared/model/triangulation-point.model';
 
 const initialState: EntityState<ITriangulationPoint> = {
@@ -11,6 +11,7 @@ const initialState: EntityState<ITriangulationPoint> = {
   entities: [],
   allEntities: [],
   filteredEntities: [],
+  filteredByDateEntities: [],
   entity: defaultValue,
   updating: false,
   totalItems: 0,
@@ -32,10 +33,21 @@ export const getAllEntities = createAsyncThunk('triangulationPointAll/fetch_enti
   return axios.get<ITriangulationPoint[]>(requestUrl);
 });
 
-export const getFilteredPoints = createAsyncThunk('triangulationPointAll/fetch_entity_filtered_list', async (id: []) => {
-  const requestUrl = `${apiUrlAll}?frequencyId.in=${id}`;
-  return axios.get<ITriangulationPoint[]>(requestUrl);
-});
+export const getFilteredPoints = createAsyncThunk(
+  'triangulationPointAll/fetch_entity_filtered_list',
+  async ({ id, greaterThanOrEqual, lessThanOrEqual }: IFilterParams) => {
+    const requestUrl = `${apiUrlAll}?frequencyId.in=${id}&date.greaterThanOrEqual=${greaterThanOrEqual}&date.lessThanOrEqual=${lessThanOrEqual}`;
+    return axios.get<ITriangulationPoint[]>(requestUrl);
+  }
+);
+
+export const getFilteredByDatePoints = createAsyncThunk(
+  'triangulationPointAll/fetch_entity_filtered_by_date',
+  async (date: string | Date) => {
+    const requestUrl = `${apiUrlAll}?`;
+    return axios.get<ITriangulationPoint[]>(requestUrl);
+  }
+);
 
 export const getEntity = createAsyncThunk(
   'triangulationPoint/fetch_entity',
@@ -112,6 +124,11 @@ export const TriangulationPointSlice = createEntitySlice({
         state.updating = false;
         state.updateSuccess = true;
         state.filteredEntities = action.payload.data;
+      })
+      .addCase(getFilteredByDatePoints.fulfilled, (state, action) => {
+        state.updating = false;
+        state.updateSuccess = true;
+        state.filteredByDateEntities = action.payload.data;
       })
       .addMatcher(isFulfilled(getEntities), (state, action) => {
         const { data, headers } = action.payload;

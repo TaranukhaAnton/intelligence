@@ -10,14 +10,22 @@
   height: 100%;
 }
 
-.frq-select {
+.filters-wrapper {
+  position: absolute;
+  z-index: 1;
+  width: 100%;
   display: flex;
-  flex-direction: column;
+  gap: 20px;
+  padding: 10px;
 }
 
 .frq-select {
-  position: absolute;
-  z-index: 1;
-  width: 300px;
-  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  flex-basis: 300px;
+}
+
+.rmdp-input {
+  padding: 10px !important;
+  height: auto !important;
 }

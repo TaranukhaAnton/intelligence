@@ -2,12 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as maptilersdk from '@maptiler/sdk';
 import '@maptiler/sdk/dist/maptiler-sdk.css';
 import './map.css';
+import Datepicker from './Datepicker';
+import Select from './Select';
+import { encodedDate } from 'app/shared/util/date-utils';
 
 // State
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getAllEntities as getAllPoints, getFilteredPoints } from 'app/entities/triangulation-point/triangulation-point.reducer';
 import { getAllEntities as getAllfrequencies } from 'app/entities/frequency/frequency.reducer';
-import Select from './Select';
 
 export default function Map() {
   const dispatch = useAppDispatch();
@@ -16,10 +18,15 @@ export default function Map() {
 
   const [frequencyId, setFrequencyId] = useState(null);
 
+  const today = new Date();
+  const [greaterThanOrEqualDate, setGreaterThanOrEqualDate] = useState<string | Date | null>(today);
+  const [lessThanOrEqualDate, setLessThanOrEqualDate] = useState<string | Date | null>(today);
+  const [isFormChecked, setIsFromChecked] = useState<boolean>(false);
+  const [isToChecked, setIsToChecked] = useState<boolean>(false);
+
   const mapContainer = useRef(null);
   const map = useRef(null);
   const zaporizhzhia = { lng: 35.53243155971364, lat: 47.43104300460715 };
-
   const [zoom] = useState(10.5);
   maptilersdk.config.apiKey = 'QJjHhm7ZqSSIlQdz165Q';
   maptilersdk.config.primaryLanguage = maptilersdk.Language.UKRAINIAN;
@@ -31,9 +38,15 @@ export default function Map() {
 
   useEffect(() => {
     if (frequencyId !== null) {
-      dispatch(getFilteredPoints(frequencyId));
+      dispatch(
+        getFilteredPoints({
+          id: frequencyId,
+          greaterThanOrEqual: isFormChecked ? encodedDate(greaterThanOrEqualDate) : '',
+          lessThanOrEqual: isToChecked ? encodedDate(lessThanOrEqualDate) : '',
+        })
+      );
     }
-  }, [frequencyId]);
+  }, [frequencyId, greaterThanOrEqualDate, lessThanOrEqualDate]);
 
   useEffect(() => {
     if (map.current) return;
@@ -90,9 +103,41 @@ export default function Map() {
     setFrequencyId(value);
   }
 
+  const handleFromDateChange = value => {
+    setGreaterThanOrEqualDate(value);
+  };
+
+  const handleToDateHandler = value => {
+    setLessThanOrEqualDate(value);
+  };
+
+  const onSwitchFromHandler = () => {
+    setIsFromChecked(prevState => !prevState);
+  };
+  const onSwitchToHandler = e => {
+    console.dir(e.target);
+    setIsToChecked(prevState => !prevState);
+  };
+
   return (
     <div className="map-wrap">
-      <Select data={frequenciesAll} onChange={onChangeFrqHandler} className="frq-select"></Select>
+      <div className="filters-wrapper">
+        <Select data={frequenciesAll} onChange={onChangeFrqHandler} className="frq-select"></Select>
+        <Datepicker
+          value={greaterThanOrEqualDate}
+          onChange={handleFromDateChange}
+          onSwitch={onSwitchFromHandler}
+          lableText={'Вибрати дату ВІД'}
+          isChecked={isFormChecked}
+        />
+        <Datepicker
+          value={lessThanOrEqualDate}
+          onChange={handleToDateHandler}
+          onSwitch={onSwitchToHandler}
+          isChecked={isToChecked}
+          lableText={'Вибрати дату ДО'}
+        />
+      </div>
       <div ref={mapContainer} className="map" />
     </div>
   );
