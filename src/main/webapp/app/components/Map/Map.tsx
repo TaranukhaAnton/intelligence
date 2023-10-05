@@ -1,10 +1,10 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as maptilersdk from '@maptiler/sdk';
 import '@maptiler/sdk/dist/maptiler-sdk.css';
 import './map.css';
 
 // State
-import { useAppSelector, useAppDispatch } from 'app/config/store';
+import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getAllEntities as getAllPoints, getFilteredPoints } from 'app/entities/triangulation-point/triangulation-point.reducer';
 import { getAllEntities as getAllfrequencies } from 'app/entities/frequency/frequency.reducer';
 import Select from './Select';
@@ -22,6 +22,7 @@ export default function Map() {
 
   const [zoom] = useState(10.5);
   maptilersdk.config.apiKey = 'QJjHhm7ZqSSIlQdz165Q';
+  maptilersdk.config.primaryLanguage = maptilersdk.Language.UKRAINIAN;
 
   useEffect(() => {
     dispatch(getAllPoints());
@@ -54,12 +55,14 @@ export default function Map() {
         lng: item.longitude,
         lat: item.latitude,
         frequency: item.frequency.name,
+        date: item.date,
+        description: item.description,
       };
     });
 
     if (markersData.length > 0) {
       markersData.forEach(markerData => {
-        const popup = new maptilersdk.Popup({ offset: 25 }).setText(markerData.frequency);
+        const popup = new maptilersdk.Popup({ offset: 25 }).setText(markerData.date + ' ' + markerData.description);
         const marker = new maptilersdk.Marker({ color: '#FF0000' })
           .setLngLat({ lng: markerData.lng, lat: markerData.lat })
           .setPopup(popup)
