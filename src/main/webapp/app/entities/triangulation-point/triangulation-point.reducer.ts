@@ -9,6 +9,8 @@ const initialState: EntityState<ITriangulationPoint> = {
   loading: false,
   errorMessage: null,
   entities: [],
+  allEntities: [],
+  filteredEntities: [],
   entity: defaultValue,
   updating: false,
   totalItems: 0,
@@ -16,11 +18,22 @@ const initialState: EntityState<ITriangulationPoint> = {
 };
 
 const apiUrl = 'api/triangulation-points';
+const apiUrlAll = 'api/triangulation-points-all';
 
 // Actions
 
 export const getEntities = createAsyncThunk('triangulationPoint/fetch_entity_list', async ({ page, size, sort }: IQueryParams) => {
   const requestUrl = `${apiUrl}${sort ? `?page=${page}&size=${size}&sort=${sort}&` : '?'}cacheBuster=${new Date().getTime()}`;
+  return axios.get<ITriangulationPoint[]>(requestUrl);
+});
+
+export const getAllEntities = createAsyncThunk('triangulationPointAll/fetch_entity_list', async () => {
+  const requestUrl = `${apiUrlAll}`;
+  return axios.get<ITriangulationPoint[]>(requestUrl);
+});
+
+export const getFilteredPoints = createAsyncThunk('triangulationPointAll/fetch_entity_filtered_list', async (id: string | number) => {
+  const requestUrl = `${apiUrlAll}?frequencyId.in=${id}`;
   return axios.get<ITriangulationPoint[]>(requestUrl);
 });
 
@@ -89,6 +102,16 @@ export const TriangulationPointSlice = createEntitySlice({
         state.updating = false;
         state.updateSuccess = true;
         state.entity = {};
+      })
+      .addCase(getAllEntities.fulfilled, (state, action) => {
+        state.updating = false;
+        state.updateSuccess = true;
+        state.allEntities = action.payload.data;
+      })
+      .addCase(getFilteredPoints.fulfilled, (state, action) => {
+        state.updating = false;
+        state.updateSuccess = true;
+        state.filteredEntities = action.payload.data;
       })
       .addMatcher(isFulfilled(getEntities), (state, action) => {
         const { data, headers } = action.payload;

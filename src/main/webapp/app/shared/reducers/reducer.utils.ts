@@ -71,6 +71,8 @@ export interface EntityState<T> {
   loading: boolean;
   errorMessage: string | null;
   entities: ReadonlyArray<T>;
+  allEntities?: ReadonlyArray<T>;
+  filteredEntities?: ReadonlyArray<T>;
   entity: T;
   links?: any;
   updating: boolean;

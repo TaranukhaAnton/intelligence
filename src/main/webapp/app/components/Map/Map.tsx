@@ -5,11 +5,16 @@ import './map.css';
 
 // State
 import { useAppSelector, useAppDispatch } from 'app/config/store';
-import { getEntities as getPoints } from 'app/entities/triangulation-point/triangulation-point.reducer';
+import { getAllEntities as getAllPoints, getFilteredPoints } from 'app/entities/triangulation-point/triangulation-point.reducer';
+import { getAllEntities as getAllfrequencies } from 'app/entities/frequency/frequency.reducer';
 
 export default function Map() {
   const dispatch = useAppDispatch();
-  const triangulationPoints = useAppSelector(state => state.triangulationPoint.entities);
+  const triangulationPointsAll = useAppSelector(state => state.triangulationPoint.allEntities);
+  const frequenciesAll = useAppSelector(state => state.frequency.allEntities);
+  const filteredPoints = useAppSelector(state => state.triangulationPoint.filteredEntities);
+
+  const [frequencyId, setFrequencyId] = useState(null);
 
   const mapContainer = useRef(null);
   const map = useRef(null);
@@ -18,8 +23,15 @@ export default function Map() {
   maptilersdk.config.apiKey = 'QJjHhm7ZqSSIlQdz165Q';
 
   useEffect(() => {
-    dispatch(getPoints({}));
+    dispatch(getAllPoints());
+    dispatch(getAllfrequencies());
   }, []);
+
+  useEffect(() => {
+    if (frequencyId !== null) {
+      dispatch(getFilteredPoints(frequencyId));
+    }
+  }, [frequencyId]);
 
   useEffect(() => {
     if (map.current) return;
@@ -33,34 +45,53 @@ export default function Map() {
   }, [zaporizhzhia.lng, zaporizhzhia.lat, zoom]);
 
   useEffect(() => {
+    const markers = [];
+
     // Multiple markers
-    const markersData = triangulationPoints?.map(item => {
+    const markersData = filteredPoints?.map(item => {
       return {
         lng: item.longitude,
         lat: item.latitude,
+        frequency: item.frequency.name,
       };
     });
 
-    const markers = [];
-
     if (markersData.length > 0) {
       markersData.forEach(markerData => {
-        const marker = new maptilersdk.Marker({ color: '#FF0000' }).setLngLat(markerData).addTo(map.current);
+        const popup = new maptilersdk.Popup({ offset: 25 }).setText(markerData.frequency);
+        const marker = new maptilersdk.Marker({ color: '#FF0000' })
+          .setLngLat({ lng: markerData.lng, lat: markerData.lat })
+          .setPopup(popup)
+          .addTo(map.current);
         markers.push(marker);
       });
     }
-
-    console.log(markersData);
 
     return () => {
       markers.forEach(marker => {
         marker.remove();
       });
     };
-  }, [triangulationPoints]);
+  }, [filteredPoints]);
+
+  function onChangeFrqHandler(e) {
+    const frqId = e.target.value;
+    // Set optionId heare
+    setFrequencyId(frqId);
+  }
 
   return (
     <div className="map-wrap">
+      <select name="frq-select" onChange={onChangeFrqHandler}>
+        <option value="">Виберіть частоту</option>
+        {frequenciesAll.map(frequency => {
+          return (
+            <option key={frequency.id} value={frequency.id}>
+              {frequency.name}
+            </option>
+          );
+        })}
+      </select>
       <div ref={mapContainer} className="map" />
     </div>
   );
