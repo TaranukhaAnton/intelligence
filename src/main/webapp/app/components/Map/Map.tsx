@@ -7,10 +7,10 @@ import './map.css';
 import { useAppSelector, useAppDispatch } from 'app/config/store';
 import { getAllEntities as getAllPoints, getFilteredPoints } from 'app/entities/triangulation-point/triangulation-point.reducer';
 import { getAllEntities as getAllfrequencies } from 'app/entities/frequency/frequency.reducer';
+import Select from './Select';
 
 export default function Map() {
   const dispatch = useAppDispatch();
-  const triangulationPointsAll = useAppSelector(state => state.triangulationPoint.allEntities);
   const frequenciesAll = useAppSelector(state => state.frequency.allEntities);
   const filteredPoints = useAppSelector(state => state.triangulationPoint.filteredEntities);
 
@@ -83,16 +83,7 @@ export default function Map() {
 
   return (
     <div className="map-wrap">
-      <select name="frq-select" onChange={onChangeFrqHandler}>
-        <option value="">Виберіть частоту</option>
-        {frequenciesAll.map(frequency => {
-          return (
-            <option key={frequency.id} value={frequency.id}>
-              {frequency.name}
-            </option>
-          );
-        })}
-      </select>
+      <Select data={frequenciesAll} onChange={onChangeFrqHandler} className="frq-select"></Select>
       <div ref={mapContainer} className="map" />
     </div>
   );
