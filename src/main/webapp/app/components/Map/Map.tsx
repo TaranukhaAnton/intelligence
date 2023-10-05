@@ -7,10 +7,10 @@ import './map.css';
 import { useAppSelector, useAppDispatch } from 'app/config/store';
 import { getAllEntities as getAllPoints, getFilteredPoints } from 'app/entities/triangulation-point/triangulation-point.reducer';
 import { getAllEntities as getAllfrequencies } from 'app/entities/frequency/frequency.reducer';
+import Select from './Select';
 
 export default function Map() {
   const dispatch = useAppDispatch();
-  const triangulationPointsAll = useAppSelector(state => state.triangulationPoint.allEntities);
   const frequenciesAll = useAppSelector(state => state.frequency.allEntities);
   const filteredPoints = useAppSelector(state => state.triangulationPoint.filteredEntities);
 
@@ -18,7 +18,7 @@ export default function Map() {
 
   const mapContainer = useRef(null);
   const map = useRef(null);
-  const zaporizhzhia = { lng: 35.1396, lat: 47.8388 };
+  const orikhiv = { lng: 35.7877, lat: 47.5659 };
   const [zoom] = useState(9);
   maptilersdk.config.apiKey = 'QJjHhm7ZqSSIlQdz165Q';
 
@@ -39,10 +39,10 @@ export default function Map() {
     map.current = new maptilersdk.Map({
       container: mapContainer.current,
       style: maptilersdk.MapStyle.STREETS,
-      center: [zaporizhzhia.lng, zaporizhzhia.lat],
+      center: [orikhiv.lng, orikhiv.lat],
       zoom: zoom,
     });
-  }, [zaporizhzhia.lng, zaporizhzhia.lat, zoom]);
+  }, [orikhiv.lng, orikhiv.lat, zoom]);
 
   useEffect(() => {
     const markers = [];
@@ -58,7 +58,13 @@ export default function Map() {
 
     if (markersData.length > 0) {
       markersData.forEach(markerData => {
-        const popup = new maptilersdk.Popup({ offset: 25 }).setText(markerData.frequency);
+        const markerHTML = `<div>
+          <div>${markerData.frequency}</div>
+          <div>довгота - ${markerData.lng}</div>
+          <div>широта - ${markerData.lat}</div>
+        </div>`;
+
+        const popup = new maptilersdk.Popup({ offset: 25 }).setHTML(markerHTML);
         const marker = new maptilersdk.Marker({ color: '#FF0000' })
           .setLngLat({ lng: markerData.lng, lat: markerData.lat })
           .setPopup(popup)
@@ -82,16 +88,7 @@ export default function Map() {
 
   return (
     <div className="map-wrap">
-      <select name="frq-select" onChange={onChangeFrqHandler}>
-        <option value="">Виберіть частоту</option>
-        {frequenciesAll.map(frequency => {
-          return (
-            <option key={frequency.id} value={frequency.id}>
-              {frequency.name}
-            </option>
-          );
-        })}
-      </select>
+      <Select data={frequenciesAll} onChange={onChangeFrqHandler} className={'frq-select'}></Select>
       <div ref={mapContainer} className="map" />
     </div>
   );
