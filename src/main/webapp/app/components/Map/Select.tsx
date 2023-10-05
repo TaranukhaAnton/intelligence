@@ -1,7 +1,7 @@
 import React from 'react';
 const Select = ({ data, onChange, className }) => {
   return (
-    <select name="frq-select" onChange={onChange} className={className}>
+    <select name="frq-select" onChange={onChange} className={className} multiple={true}>
       <option value="">Виберіть частоту</option>
       {data.map(item => {
         return (
