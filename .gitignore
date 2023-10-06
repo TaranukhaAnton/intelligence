@@ -5,6 +5,7 @@
 /target/classes/static/**
 /src/test/javascript/coverage/
 
+package-lock.json
 ######################
 # Node
 ######################
