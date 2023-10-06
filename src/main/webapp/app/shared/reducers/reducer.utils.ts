@@ -14,6 +14,8 @@ import { AxiosError } from 'axios';
  */
 export type IQueryParams = { query?: string; page?: number; size?: number; sort?: string };
 
+export type IFilterParams = { id?: string | number; greaterThanOrEqual?: string; lessThanOrEqual?: string };
+
 /**
  * Useful types for working with actions
  */
@@ -73,6 +75,7 @@ export interface EntityState<T> {
   entities: ReadonlyArray<T>;
   allEntities?: ReadonlyArray<T>;
   filteredEntities?: ReadonlyArray<T>;
+  filteredByDateEntities?: ReadonlyArray<T>;
   entity: T;
   links?: any;
   updating: boolean;
