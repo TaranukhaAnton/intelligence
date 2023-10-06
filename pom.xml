@@ -294,6 +294,11 @@
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
         <!-- jhipster-needle-maven-add-dependency -->
     </dependencies>
 
