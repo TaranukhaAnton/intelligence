@@ -10,7 +10,6 @@ import { encodedDate } from 'app/shared/util/date-utils';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getAllEntities as getAllPoints, getFilteredPoints } from 'app/entities/triangulation-point/triangulation-point.reducer';
 import { getAllEntities as getAllfrequencies } from 'app/entities/frequency/frequency.reducer';
-import Select from './Select';
 import { convertDateTimeFromServer, convertDateTimeFromServer2 } from 'app/shared/util/date-utils';
 
 export default function Map() {
