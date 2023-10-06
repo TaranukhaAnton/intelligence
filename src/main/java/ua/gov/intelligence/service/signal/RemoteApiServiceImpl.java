@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,12 @@ import ua.gov.intelligence.service.criteria.FrequencyCriteria;
 public class RemoteApiServiceImpl implements RemoteApiService {
 
     private final Logger log = LoggerFactory.getLogger(RemoteApiService.class);
+
+    @Value("${signal.phone}")
+    private String signalPhone;
+
+    @Value("${signal.api.url}")
+    private String signalApiUrl;
 
     public static final String TEST = "pKe+C6kVPQuVbWOgLzZreXj77pexfbXBUlrh2sY6Zk0=";
     public static final String STEPNO = "Btb71pNufy93e/tEZ4A9RDILd7CcdLprMB6U4Y7+KdM=";
@@ -63,7 +70,7 @@ public class RemoteApiServiceImpl implements RemoteApiService {
     public void scheduleFixedDelayTask() {
         final List<SignalMessage> messages = getMessages();
 
-        System.out.println("messages.size() = " + messages.size());
+        log.info("messages.size() = " + messages.size());
         for (SignalMessage message : messages) {
             final Envelope envelope = message.getEnvelope();
             if (envelope == null) {
@@ -75,15 +82,15 @@ public class RemoteApiServiceImpl implements RemoteApiService {
             }
 
             String groupId = getGroupId(message);
-            System.out.println("groupId = " + groupId);
+            log.info("groupId = " + groupId);
 
             if (STEPNO.equals(groupId)) {
-                System.out.println("message = " + dataMessage.getMessage());
+                log.info("message = " + dataMessage.getMessage());
                 processTriangulationPoint(dataMessage);
             }
 
             if (TEST.equals(groupId)) {
-                System.out.println("message = " + dataMessage.getMessage());
+                log.info("message = " + dataMessage.getMessage());
                 processTriangulationPoint(dataMessage);
             }
         }
@@ -149,7 +156,8 @@ public class RemoteApiServiceImpl implements RemoteApiService {
     @Override
     public List<SignalMessage> getMessages() {
         //        String url = "http://localhost:8080/v1/receive/+380957319209";
-        String url = "http://localhost:8080/v1/receive/+380965127484";
+        // String url = "http://localhost:8080/v1/receive/+380965127484";
+        final String url = signalApiUrl + "/v1/receive/" + (signalPhone.startsWith("+") ? "" : "+") + signalPhone;
         ResponseEntity<SignalMessage[]> response = restTemplate.getForEntity(url, SignalMessage[].class);
         return Arrays.asList(response.getBody());
     }
