@@ -2,7 +2,6 @@ package ua.gov.intelligence.domain;
 
 import static javax.persistence.CascadeType.ALL;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -46,7 +45,6 @@ public class TriangulationPoint implements Serializable {
 
     @NotNull
     @Column(name = "date", nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     private ZonedDateTime date;
 
     @ManyToOne

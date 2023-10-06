@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getAllEntities as getAllPoints, getFilteredPoints } from 'app/entities/triangulation-point/triangulation-point.reducer';
 import { getAllEntities as getAllfrequencies } from 'app/entities/frequency/frequency.reducer';
 import Select from './Select';
+import { convertDateTimeFromServer, convertDateTimeFromServer2 } from 'app/shared/util/date-utils';
 
 export default function Map() {
   const dispatch = useAppDispatch();
@@ -44,6 +45,116 @@ export default function Map() {
       center: [zaporizhzhia.lng, zaporizhzhia.lat],
       zoom: zoom,
     });
+
+    map.current.on('load', async () => {
+      map.current.addSource('places', {
+        data: {
+          features: [
+            {
+              geometry: {
+                coordinates: [35.5645, 47.4575],
+                type: 'Point',
+              },
+              type: 'Feature',
+              properties: {
+                description:
+                  '<strong>05-10-2023 01:35</strong><p>Ймовірно УКХ р/м управління адн 503 мсп 19 мсд 58А   </p><p>Придурки </p>',
+                frequency: 430.11,
+              },
+            },
+            {
+              geometry: {
+                coordinates: [35.5647, 47.4575],
+                type: 'Point',
+              },
+              type: 'Feature',
+              properties: {
+                description: '<strong>05-10-2023 02:05</strong><p>Ймовірно УКХ р/м управління адн 503 мсп 19 мсд 58А   </p>',
+                frequency: 430.11,
+              },
+            },
+            {
+              geometry: {
+                coordinates: [35.5647, 47.4575],
+                type: 'Point',
+              },
+              type: 'Feature',
+              properties: {
+                description: '<strong>05-10-2023 02:06</strong><p>Ймовірно УКХ р/м управління адн 503 мсп 19 мсд 58А   </p>',
+                frequency: 430.11,
+              },
+            },
+            {
+              geometry: {
+                coordinates: [35.5687, 47.4522],
+                type: 'Point',
+              },
+              type: 'Feature',
+              properties: {
+                description: '<strong>05-10-2023 02:09</strong><p>Ймовірно УКХ р/м управління адн 503 мсп 19 мсд 58А   </p>',
+                frequency: 430.11,
+              },
+            },
+            {
+              geometry: {
+                coordinates: [35.5237, 47.3484],
+                type: 'Point',
+              },
+              type: 'Feature',
+              properties: {
+                description: '<strong>05-10-2023 09:54</strong><p>Ймовірно УКХ р/м управління адн 503 мсп 19 мсд 58А   </p>',
+                frequency: 430.11,
+              },
+            },
+          ],
+          type: 'FeatureCollection',
+        },
+        type: 'geojson',
+      });
+
+      map.current.addLayer({
+        id: 'places',
+        type: 'circle',
+        source: 'places',
+
+        paint: {
+          'circle-color': '#ff2254',
+          'circle-opacity': 0.6,
+          'circle-radius': 8,
+        },
+      });
+      map.current.addLayer({
+        id: 'places_2',
+        type: 'symbol',
+        source: 'places',
+
+        layout: {
+          'text-field': ['number-format', ['get', 'frequency'], { 'min-fraction-digits': 3, 'max-fraction-digits': 3 }],
+          'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+          'text-size': 10,
+          'text-offset': [0, 1.5],
+        },
+        paint: {
+          'text-color': 'black',
+        },
+      });
+
+      // When a click event occurs on a feature in the places layer, open a popup at the
+      // location of the feature, with description HTML from its properties.
+      map.current.on('click', 'places', function (e) {
+        var coordinates = e.features[0].geometry.coordinates.slice();
+        var description = e.features[0].properties.description;
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        new maptilersdk.Popup().setLngLat(coordinates).setHTML(description).addTo(map.current);
+      });
+    });
   }, [zaporizhzhia.lng, zaporizhzhia.lat, zoom]);
 
   useEffect(() => {
@@ -55,14 +166,19 @@ export default function Map() {
         lng: item.longitude,
         lat: item.latitude,
         frequency: item.frequency.name,
-        date: item.date,
+        date: convertDateTimeFromServer2(item.date),
         description: item.description,
       };
     });
 
     if (markersData.length > 0) {
       markersData.forEach(markerData => {
-        const popup = new maptilersdk.Popup({ offset: 25 }).setText(markerData.date + ' ' + markerData.description);
+        let html = '<div>' + markerData.date + '<div/>';
+        if (markerData.description) {
+          html += '<div>' + markerData.description + '<div/>';
+        }
+
+        const popup = new maptilersdk.Popup({ offset: 25 }).setHTML(html);
         const marker = new maptilersdk.Marker({ color: '#FF0000' })
           .setLngLat({ lng: markerData.lng, lat: markerData.lat })
           .setPopup(popup)

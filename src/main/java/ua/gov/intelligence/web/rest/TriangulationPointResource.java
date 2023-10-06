@@ -2,9 +2,8 @@ package ua.gov.intelligence.web.rest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -80,7 +79,7 @@ public class TriangulationPointResource {
     /**
      * {@code PUT  /triangulation-points/:id} : Updates an existing triangulationPoint.
      *
-     * @param id the id of the triangulationPoint to save.
+     * @param id                 the id of the triangulationPoint to save.
      * @param triangulationPoint the triangulationPoint to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated triangulationPoint,
      * or with status {@code 400 (Bad Request)} if the triangulationPoint is not valid,
@@ -114,7 +113,7 @@ public class TriangulationPointResource {
     /**
      * {@code PATCH  /triangulation-points/:id} : Partial updates given fields of an existing triangulationPoint, field will ignore if it is null
      *
-     * @param id the id of the triangulationPoint to save.
+     * @param id                 the id of the triangulationPoint to save.
      * @param triangulationPoint the triangulationPoint to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated triangulationPoint,
      * or with status {@code 400 (Bad Request)} if the triangulationPoint is not valid,
@@ -172,6 +171,13 @@ public class TriangulationPointResource {
         return ResponseEntity.ok().body(p);
     }
 
+    @GetMapping("/triangulation-points-all-geojson")
+    public ResponseEntity<Map> getAllTriangulationPointsGeojson(TriangulationPointCriteria criteria) {
+        log.debug("REST request to get TriangulationPoints by criteria: {}", criteria);
+        List<TriangulationPoint> triangulationPoints = triangulationPointQueryService.findByCriteria(criteria);
+        return ResponseEntity.ok().body(mapPoints(triangulationPoints));
+    }
+
     /**
      * {@code GET  /triangulation-points/count} : count all the triangulationPoints.
      *
@@ -211,5 +217,43 @@ public class TriangulationPointResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    private Map<String, Object> mapPoints(List<TriangulationPoint> triangulationPoints) {
+        //        DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("type", "geojson");
+        final Map<Object, Object> data = new HashMap<>();
+        data.put("type", "FeatureCollection");
+        final LinkedList<Map<String, Object>> features = new LinkedList<>();
+
+        for (TriangulationPoint point : triangulationPoints) {
+            final Map<String, Object> feature = new HashMap<>();
+            feature.put("type", "Feature");
+            final Map<Object, Object> properties = new HashMap<>();
+            properties.put("frequency", point.getFrequency().getName());
+            final String description =
+                "<strong>" +
+                formatter.format(point.getDate()) +
+                "</strong>" +
+                ((point.getFrequency().getDescription() == null) ? "" : ("<p>" + point.getFrequency().getDescription() + " </p>")) +
+                ((point.getDescription() == null) ? "" : ("<p>" + point.getDescription() + " </p>"));
+            properties.put("description", description);
+
+            feature.put("properties", properties);
+            final Map<Object, Object> geometry = new HashMap<>();
+            geometry.put("type", "Point");
+            geometry.put("coordinates", new double[] { point.getLongitude(), point.getLatitude() });
+            feature.put("geometry", geometry);
+
+            features.add(feature);
+        }
+
+        data.put("features", features);
+        result.put("data", data);
+        return result;
     }
 }
