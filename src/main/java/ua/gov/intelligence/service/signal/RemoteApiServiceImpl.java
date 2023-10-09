@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import tech.jhipster.service.filter.DoubleFilter;
@@ -66,7 +65,7 @@ public class RemoteApiServiceImpl implements RemoteApiService {
     }
 
     //            @Scheduled(fixedDelay = 3000000)
-    @Scheduled(fixedDelay = 10000)
+    //    @Scheduled(fixedDelay = 10000)
     public void scheduleFixedDelayTask() {
         final List<SignalMessage> messages = getMessages();
 
