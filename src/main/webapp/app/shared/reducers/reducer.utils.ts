@@ -70,17 +70,18 @@ export const serializeAxiosError = (value: any): AxiosError | SerializedError =>
 };
 
 export interface EntityState<T> {
-  loading: boolean;
-  errorMessage: string | null;
-  entities: ReadonlyArray<T>;
+  loading?: boolean;
+  errorMessage?: string | null;
+  entities?: ReadonlyArray<T>;
   allEntities?: ReadonlyArray<T>;
   filteredEntities?: ReadonlyArray<T>;
   filteredByDateEntities?: ReadonlyArray<T>;
-  entity: T;
+  geoJson?: {};
+  entity?: T;
   links?: any;
-  updating: boolean;
+  updating?: boolean;
   totalItems?: number;
-  updateSuccess: boolean;
+  updateSuccess?: boolean;
 }
 
 /**
